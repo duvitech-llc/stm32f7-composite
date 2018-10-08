@@ -335,7 +335,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F767xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F7xx_HAL_Driver/Inc;../Drivers/STM32F7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/HID/Inc;../Drivers/CMSIS/Device/ST/STM32F7xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F7xx_HAL_Driver/Inc;../Drivers/STM32F7xx_HAL_Driver/Inc/Legacy;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/Display/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/VIDEO/Inc;../Drivers/CMSIS/Device/ST/STM32F7xx/Include;../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -387,9 +387,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>::CMSIS</GroupName>
-        </Group>
-        <Group>
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
@@ -411,11 +408,6 @@
               <FileName>usbd_desc.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/usbd_desc.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_cdc_if.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/usbd_cdc_if.c</FilePath>
             </File>
             <File>
               <FileName>stm32f7xx_it.c</FileName>
@@ -441,6 +433,11 @@
               <FileName>usb_descriptors.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\usb_descriptors.c</FilePath>
+            </File>
+            <File>
+              <FileName>queue-stack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\queue-stack.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -573,16 +570,19 @@
               <FilePath>../Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_cdc.c</FileName>
+              <FileName>usbd_video_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c</FilePath>
+              <FilePath>..\Middlewares\ST\STM32_USB_Device_Library\Class\VIDEO\src\usbd_video_core.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_hid.c</FileName>
+              <FileName>usbd_display.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Middlewares\ST\STM32_USB_Device_Library\Class\HID\Src\usbd_hid.c</FilePath>
+              <FilePath>..\Middlewares\ST\STM32_USB_Device_Library\Class\Display\Src\usbd_display.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

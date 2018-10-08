@@ -49,13 +49,14 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+#include "main.h"
 #include "usb_device.h"
 #include "usbd_core.h"
-#include "usbd_hid.h"
 #include "usbd_desc.h"
+#include "usbd_video_core.h"
+#include "usbd_display.h"
 #include "usbd_composite.h"
-#include "usb_descriptors.h"
-#include "usbd_cdc_if.h"
+
 
 /* USER CODE BEGIN Includes */
 
@@ -109,22 +110,19 @@ void reenumerate(){
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-    USBD_Composite_Set_Descriptor(COMPOSITE_CDC_HID_DESCRIPTOR, COMPOSITE_CDC_HID_DESCRIPTOR_SIZE);
+	
+  USBD_Composite_Set_Classes(&VIDEO_cb, &USBD_DISPLAY_ClassDriver);
+  in_endpoint_to_class[0x01 & 0x7F] = 0;
+  out_endpoint_to_class[0x06 & 0x7F] = 1;
 
-    USBD_Composite_Set_Classes(&USBD_CDC, &USBD_HID);
+	reenumerate();
 
-    in_endpoint_to_class[HID_EPIN_ADDR & 0x7F] = 1;
-
-    reenumerate();
-  
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
   
   /* Init Device Library, add supported class and start the library. */
   USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS);
 
   USBD_RegisterClass(&hUsbDeviceFS, &USBD_Composite);
-
-  USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS);
 
   USBD_Start(&hUsbDeviceFS);
 

@@ -1,7 +1,6 @@
 #include "usbd_composite.h"
+#include "usb_descriptors.h"
 #include "usbd_desc.h"
-#include "usbd_hid.h"
-#include "usbd_cdc.h"
 #include "usbd_ctlreq.h"
 
 static uint8_t USBD_Composite_Init (USBD_HandleTypeDef *pdev, uint8_t cfgidx);

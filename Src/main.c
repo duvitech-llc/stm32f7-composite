@@ -48,7 +48,6 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f7xx_hal.h"
 #include "usb_device.h"
 
 /* USER CODE BEGIN Includes */
@@ -75,6 +74,21 @@ static void MX_USART3_UART_Init(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+	
+__IO uint32_t camera_desired_state = 0;
+static __IO uint32_t camera_current_state = 0;
+
+struct queue* empty_disp_buffers;
+struct queue* process_disp_buffers;
+
+__IO int32_t  camera_buffer = 0;
+__IO int32_t  camera_buffer_state = 0;
+__IO uint32_t Jpeg_Camera_Buffers[3] = 
+{
+  0x20020000,
+  0x20040000,
+	0x20060000
+};
 
 /* USER CODE END 0 */
 

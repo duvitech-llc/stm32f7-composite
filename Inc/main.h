@@ -54,6 +54,9 @@
 /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
+#include "stm32f7xx_hal.h"
+#include "queue-stack.h"
+
 
 /* USER CODE END Includes */
 
@@ -118,6 +121,9 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+extern __IO uint32_t camera_desired_state;
+extern struct queue* empty_disp_buffers;
+extern struct queue* process_disp_buffers;
 
 /* USER CODE END Private defines */
 
