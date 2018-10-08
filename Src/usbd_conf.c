@@ -53,6 +53,7 @@
 #include "usbd_core.h"
 
 /* USER CODE BEGIN Includes */
+#include "usbd_video_core.h"
 
 /* USER CODE END Includes */
 
@@ -341,9 +342,11 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+
   HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_FS, 0x80);
   HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, 0x40);
-  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, 0x80);
+  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, USB_UVC_ENDPOINT, VIDEO_PACKET_SIZE);
+	
   }
   return USBD_OK;
 }

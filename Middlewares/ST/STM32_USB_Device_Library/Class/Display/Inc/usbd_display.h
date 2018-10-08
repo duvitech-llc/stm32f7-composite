@@ -68,7 +68,7 @@
   * @{
   */
 #define USB_DISPLAY_ENDPOINT	0x06
-#define USB_DISPLAY_MAX_SIZE	512
+#define USB_DISPLAY_MAX_SIZE	64
 
 
 #define USB_DISPLAY_CONFIG_DESC_SIZ       0x19

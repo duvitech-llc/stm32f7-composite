@@ -122,8 +122,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+	
+	
+	
+  MX_USB_DEVICE_Init();
 
   /* USER CODE END 2 */
 
