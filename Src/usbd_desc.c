@@ -221,7 +221,7 @@ __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
 
 
 #if defined ( __ICCARM__ ) /*!< IAR Compiler */
-  #pragma data_alignment=4   
+  #pragma data_alignment=4
 #endif
 /* USB Standard Device Descriptor */
 __ALIGN_BEGIN uint8_t USBD_FS_DeviceDesc_Composite[USB_LEN_DEV_DESC] __ALIGN_END =

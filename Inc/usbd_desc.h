@@ -117,7 +117,6 @@
 /** Descriptor for the Usb device. */
 extern USBD_DescriptorsTypeDef FS_Desc;
 
-extern USBD_DescriptorsTypeDef FS_Desc_Composite;
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 
 /* USER CODE END EXPORTED_VARIABLES */

@@ -53,10 +53,9 @@
 #include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
-#include "usbd_video_core.h"
-
 
 /* USER CODE BEGIN Includes */
+#include "usbd_video_core.h"
 
 /* USER CODE END Includes */
 
