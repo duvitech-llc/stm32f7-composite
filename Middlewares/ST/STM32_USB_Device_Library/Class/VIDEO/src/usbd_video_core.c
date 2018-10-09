@@ -420,7 +420,6 @@ static uint8_t  usbd_video_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
 	//printf("%s\r\n", __func__);
 	HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-	uint32_t t = HAL_GetTick();
   uint16_t i;  
   uint16_t packet_size = 0;
 	USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(1));
@@ -429,30 +428,33 @@ static uint8_t  usbd_video_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 	{
 		if (tx_enable_flag == 0)
 		{			
-			if(t - last > 40 || last ==0){
-				last = t;
-				tx_enable_flag = 1;
-				// check if we need to loop to beginning
+			tx_enable_flag = 1;
+			// check if we need to loop to beginning
+			if(QspiAddr == NULL || *(uint16_t*)QspiAddr != 0xd8ff){
+				QspiAddr = (__IO uint8_t *)(0x08100000);
+				
 				if(QspiAddr == NULL || *(uint16_t*)QspiAddr != 0xd8ff){
-					QspiAddr = (__IO uint8_t *)(0x08100000);
+			
+					tx_enable_flag = 0;
+					packet[0] = header[0];
+					packet[1] = header[1];				
+					packet[2] = 0;				
+					packet[3] = 0;
+					packet_size += 4;
+					// send packet
+					if(USBD_LL_Transmit(pdev,USB_ENDPOINT_IN(1), (uint8_t*)&packet, (uint32_t)packet_size) == USBD_FAIL){
+						Error_Handler();
+					}
+							
+					return USBD_OK;
+					
 				}
 				
-				//start of new frame
-				header[1]^= 1;//toggle bit0 every new frame
-			}else{
-				
-				packet[0] = header[0];
-				packet[1] = header[1];				
-				packet[2] = 0;				
-				packet[3] = 0;
-				packet_size += 4;
-				// send packet
-				if(USBD_LL_Transmit(pdev,USB_ENDPOINT_IN(1), (uint8_t*)&packet, (uint32_t)packet_size) == USBD_FAIL){
-					Error_Handler();
-				}
-						
-				return USBD_OK;
 			}
+			
+			//start of new frame
+			header[1]^= 1;//toggle bit0 every new frame
+			
 		}
 
 		packet[0] = header[0];
@@ -504,7 +506,6 @@ static uint8_t  usbd_video_SOF (USBD_HandleTypeDef *pdev)
 	  play_status = 2;
 		tx_enable_flag = 0;
 		QspiAddr = (__IO uint8_t *)(0x08100000);
-		last = 0;
   }
   return USBD_OK;
 }
