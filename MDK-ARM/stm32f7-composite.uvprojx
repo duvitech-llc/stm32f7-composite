@@ -10,7 +10,7 @@
       <TargetName>stm32f7-composite</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060528::V5.06 update 5 (build 528)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -324,6 +324,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -424,16 +425,6 @@
               <FileName>stm32f7xx_hal_timebase_TIM.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f7xx_hal_timebase_TIM.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_composite.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\usbd_composite.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_descriptors.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\usb_descriptors.c</FilePath>
             </File>
             <File>
               <FileName>queue-stack.c</FileName>
@@ -574,11 +565,6 @@
               <FileName>usbd_video_core.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Middlewares\ST\STM32_USB_Device_Library\Class\VIDEO\src\usbd_video_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbd_display.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middlewares\ST\STM32_USB_Device_Library\Class\Display\Src\usbd_display.c</FilePath>
             </File>
           </Files>
         </Group>

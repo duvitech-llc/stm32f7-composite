@@ -19,10 +19,6 @@ static uint8_t  usbd_video_IN_Incplt (USBD_HandleTypeDef  *pdev, uint8_t epnum);
 
 uint8_t  *USBD_video_GetDeviceQualifierDescriptor(uint16_t *length);
 
-extern __IO int32_t  camera_buffer;
-extern __IO int32_t  camera_buffer_state;
-extern __IO uint32_t Jpeg_Camera_Buffers[];
-	
 /*********************************************
    VIDEO Requests management functions
  *********************************************/
@@ -213,7 +209,7 @@ __ALIGN_BEGIN static uint8_t usbd_video_CfgDesc[]  __ALIGN_END =
   VS_INPUT_HEADER,                           // bDescriptorSubtype       1 (INPUT_HEADER)
   0x01,                                      // bNumFormats              1 one format descriptor follows
   WBVAL(VC_HEADER_SIZ),
-  USB_ENDPOINT_IN(USB_UVC_ENDPOINT),         // bEndPointAddress      0x83 EP 3 IN
+  USB_ENDPOINT_IN(1),                        // bEndPointAddress      0x83 EP 3 IN
   0x00,                                      // bmInfo                   0 no dynamic format change supported
   0x02,                                      // bTerminalLink            2 supplies terminal ID 2 (Output terminal)
   0x02,                                      // bStillCaptureMethod      0 NO supports still image capture
@@ -275,7 +271,7 @@ __ALIGN_BEGIN static uint8_t usbd_video_CfgDesc[]  __ALIGN_END =
   /* Standard VS Isochronous Video data Endpoint Descriptor */
   USB_ENDPOINT_DESC_SIZE,                   // bLength                  7
   USB_ENDPOINT_DESCRIPTOR_TYPE,             // bDescriptorType          5 (ENDPOINT)
-  USB_ENDPOINT_IN(USB_UVC_ENDPOINT),        // bEndpointAddress      0x83 EP 3 IN
+  USB_ENDPOINT_IN(1),                       // bEndpointAddress      0x83 EP 3 IN
   USB_ENDPOINT_TYPE_ISOCHRONOUS | USB_ENDPOINT_SYNC_ASYNCHRONOUS,            // bmAttributes             1 isochronous transfer type
   WBVAL(VIDEO_PACKET_SIZE),                 // wMaxPacketSize
   0x01                                      // bInterval                1 one frame interval
@@ -287,13 +283,13 @@ static uint8_t  usbd_video_Init (USBD_HandleTypeDef  *pdev,
 	// printf("%s\r\n", __func__);
   /* Open EP IN */
   USBD_LL_OpenEP(pdev,
-		      USB_ENDPOINT_IN(USB_UVC_ENDPOINT),		      
+		      USB_ENDPOINT_IN(1),		      
           USBD_EP_TYPE_ISOC,
 					VIDEO_PACKET_SIZE);
 
   /* Initialize the Video Hardware layer */
    
-  USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(USB_UVC_ENDPOINT));
+  USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(1));
 	
   return USBD_OK;
 }
@@ -303,7 +299,7 @@ static uint8_t  usbd_video_DeInit (USBD_HandleTypeDef  *pdev,
                                    uint8_t cfgidx)
 { 
 	// printf("%s\r\n", __func__);
-  USBD_LL_CloseEP (pdev , USB_ENDPOINT_IN(USB_UVC_ENDPOINT));
+  USBD_LL_CloseEP (pdev , USB_ENDPOINT_IN(1));
   
   /* DeInitialize the Audio output Hardware layer */
 
@@ -387,13 +383,11 @@ static uint8_t  usbd_video_Setup (USBD_HandleTypeDef  *pdev,
         usbd_video_AltSet = (uint8_t)(req->wValue);
 
         if (usbd_video_AltSet == 1) {
-					printf("EP Enabled\r\n");
-					camera_desired_state = 1;
+					// printf("EP Enabled\r\n");
         	play_status = 1;
         } else {
-					printf("EP Disabled\r\n");
-					camera_desired_state = 0;
-        	USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(USB_UVC_ENDPOINT));
+					// printf("EP Disabled\r\n");
+        	USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(1));
         	play_status = 0;
         }
       }
@@ -419,32 +413,46 @@ __IO uint8_t header[2] = {2,0};//length + data
 __IO uint8_t packet[VIDEO_PACKET_SIZE];
 __IO uint8_t *QspiAddr = NULL;
 __IO uint8_t tx_enable_flag;
-__IO uint32_t base_jpg_addr;
-
+__IO uint32_t last;
 
 //handle request from HOST <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 static uint8_t  usbd_video_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
 	//printf("%s\r\n", __func__);
-	
+	HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+	uint32_t t = HAL_GetTick();
   uint16_t i;  
   uint16_t packet_size = 0;
-	uint32_t swap; 
-	USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(USB_UVC_ENDPOINT));
+	USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(1));
 	
 	if (play_status == 2)
 	{
 		if (tx_enable_flag == 0)
 		{			
-			tx_enable_flag = 1;
-			// check if we need to loop to beginning
-			if(QspiAddr == NULL || *(uint16_t*)QspiAddr != 0xd8ff){
-				QspiAddr = (__IO uint8_t *)Jpeg_Camera_Buffers[2];
-				base_jpg_addr = (uint32_t)QspiAddr;
+			if(t - last > 40 || last ==0){
+				last = t;
+				tx_enable_flag = 1;
+				// check if we need to loop to beginning
+				if(QspiAddr == NULL || *(uint16_t*)QspiAddr != 0xd8ff){
+					QspiAddr = (__IO uint8_t *)(0x08100000);
+				}
+				
+				//start of new frame
+				header[1]^= 1;//toggle bit0 every new frame
+			}else{
+				
+				packet[0] = header[0];
+				packet[1] = header[1];				
+				packet[2] = 0;				
+				packet[3] = 0;
+				packet_size += 4;
+				// send packet
+				if(USBD_LL_Transmit(pdev,USB_ENDPOINT_IN(1), (uint8_t*)&packet, (uint32_t)packet_size) == USBD_FAIL){
+					Error_Handler();
+				}
+						
+				return USBD_OK;
 			}
-			
-			//start of new frame
-			header[1]^= 1;//toggle bit0 every new frame
 		}
 
 		packet[0] = header[0];
@@ -459,16 +467,6 @@ static uint8_t  usbd_video_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 				packet[i] = *QspiAddr++;
 				packet[i+1] = *QspiAddr++;		
 				packet_size+=2;
-				
-				// check for new frame
-				if(camera_buffer_state == 1){
-					swap = Jpeg_Camera_Buffers[2];
-					Jpeg_Camera_Buffers[2] = Jpeg_Camera_Buffers[1-camera_buffer];
-					Jpeg_Camera_Buffers[1-camera_buffer] = swap;
-					camera_buffer_state = 0;
-				}
-				
-				QspiAddr = (__IO uint8_t *)Jpeg_Camera_Buffers[2];
 				tx_enable_flag = 0;
 				break;
 			}
@@ -478,12 +476,11 @@ static uint8_t  usbd_video_DataIn (USBD_HandleTypeDef *pdev, uint8_t epnum)
 		}
 
 		// send packet
-		if(USBD_LL_Transmit(pdev,USB_ENDPOINT_IN(USB_UVC_ENDPOINT), (uint8_t*)&packet, (uint32_t)packet_size) == USBD_FAIL){
+		if(USBD_LL_Transmit(pdev,USB_ENDPOINT_IN(1), (uint8_t*)&packet, (uint32_t)packet_size) == USBD_FAIL){
 			Error_Handler();
 		}
 	}else{
-		QspiAddr = (__IO uint8_t *)Jpeg_Camera_Buffers[2];
-		base_jpg_addr = (uint32_t)QspiAddr;
+		QspiAddr = (__IO uint8_t *)(0x08100000);
 	}
 	
   return USBD_OK;
@@ -502,12 +499,12 @@ static uint8_t  usbd_video_SOF (USBD_HandleTypeDef *pdev)
   {
 		// printf("%s\r\n", __func__);
 		uint16_t hdr = 0x0002;
-	  USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(USB_UVC_ENDPOINT));
-	  USBD_LL_Transmit(pdev, USB_ENDPOINT_IN(USB_UVC_ENDPOINT), (uint8_t*)&hdr, 2);//header
+	  USBD_LL_FlushEP(pdev, USB_ENDPOINT_IN(1));
+	  USBD_LL_Transmit(pdev, USB_ENDPOINT_IN(1), (uint8_t*)&hdr, 2);//header
 	  play_status = 2;
 		tx_enable_flag = 0;
-		QspiAddr = (__IO uint8_t *)Jpeg_Camera_Buffers[2];
-		base_jpg_addr = (uint32_t)QspiAddr;
+		QspiAddr = (__IO uint8_t *)(0x08100000);
+		last = 0;
   }
   return USBD_OK;
 }

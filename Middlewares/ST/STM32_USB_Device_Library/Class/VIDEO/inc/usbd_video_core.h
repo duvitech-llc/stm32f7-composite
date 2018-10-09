@@ -30,14 +30,15 @@ typedef struct  _VideoControl{
 #define WBVAL(x) (x & 0xFF),((x >> 8) & 0xFF)
 #define DBVAL(x) (x & 0xFF),((x >> 8) & 0xFF),((x >> 16) & 0xFF),((x >> 24) & 0xFF)
 
-#define USB_UVC_ENDPOINT															0x05
 
 #define WIDTH                                         (unsigned int)640
-#define HEIGHT                                        (unsigned int)480
+#define HEIGHT                                        (unsigned int)360
 #define MIN_FPS                                       15
 #define CAM_FPS                                       24
 #define MAX_FPS                                       30
-#define VIDEO_PACKET_SIZE                             (unsigned int)(768)//128+130
+
+#define VIDEO_PACKET_SIZE                             (unsigned int)(512)//128+130
+
 #define MIN_BIT_RATE                                  (unsigned long)(0x7CE000)//16 bit
 #define MAX_BIT_RATE                                  (unsigned long)(0x3E80000)
 //#define MAX_FRAME_SIZE                                (unsigned long)(WIDTH*HEIGHT*2)//yuy2
